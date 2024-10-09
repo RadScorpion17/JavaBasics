@@ -7,6 +7,13 @@ public class Lion implements Animal {
     private int age;
     private int weight;
 
+    public Lion(String name, String species, String breed, int age, int weight) {
+        this.name = name;
+        this.species = species;
+        this.breed = breed;
+        this.age = age;
+        this.weight = weight;
+    }
 
     @Override
     public void eat() {

@@ -7,6 +7,14 @@ public class Elephant implements Animal {
     private int age;
     private int weight;
 
+    public Elephant(String name, String species, String breed, int age, int weight) {
+        this.name = name;
+        this.species = species;
+        this.breed = breed;
+        this.age = age;
+        this.weight = weight;
+    }
+
     @Override
     public void eat() {
         System.out.println("Elephant " + name + " eats");
