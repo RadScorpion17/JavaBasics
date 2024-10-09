@@ -4,7 +4,7 @@ import java.util.HashSet;
 
 public class Zoo {
     public String name;
-    HashSet<ZooAreas> areas;
+    HashSet<ZooAreas> areas = new HashSet<>();
 
     public Zoo(String name) {
         this.name = name;
