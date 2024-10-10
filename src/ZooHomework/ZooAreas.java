@@ -13,18 +13,30 @@ public class ZooAreas {
     }
 
     public void addAnimal(Animal animal) {
-        int currentCapacity = 0;
+        int currentCapacity = animals.size();
 
-        if(animals != null){
-            currentCapacity = animals.size();
-        }
-
-        if(currentCapacity > capacity){
-            System.out.println("Current animal capacity is at maximum for this area");
+        if(currentCapacity == capacity){
+            System.out.println("Current animal capacity is at maximum for this area " + "("+this.name+")");
             return;
         }
 
         animals.add(animal);
+    }
+
+    public void addAnimal(ArrayList<Animal> animal) {
+        int currentCapacity = animals.size();
+
+        if(currentCapacity == this.capacity){
+            System.out.println("Current animal capacity is at maximum for this area " + "("+this.name+")");
+            return;
+        }
+
+        if(currentCapacity + animal.size() > this.capacity){
+            System.out.println("List of animals is too big for this area "+"("+this.name+")");
+            return;
+        }
+
+        animals.addAll(animal);
     }
 
     public ArrayList<Animal> getAnimals(){
@@ -35,7 +47,7 @@ public class ZooAreas {
         return animals;
     }
 
-    public int getCapacity() {
-        return capacity;
+    public int getCurrentCapacity(){
+        return this.animals.size();
     }
 }
