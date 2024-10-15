@@ -11,126 +11,117 @@
 package ZooHomework;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        Zoo zoo1 = new Zoo("Botánico");
-        try {
-            BufferedWriter writer1 = new BufferedWriter(new FileWriter("src/ZooHomework/zooAreas.csv"));
-            writer1.write("zoo_area_name, capacity\n");
-            List<String> zooAreasFileLoadArray = new ArrayList<>();
-            zooAreasFileLoadArray.add("Elephants, 5");
-            zooAreasFileLoadArray.add("Reptiles, 3");
-            zooAreasFileLoadArray.add("Felines, 3");
-            for (String zooArea : zooAreasFileLoadArray) {
-                writer1.write(zooArea + "\n");
-            }
-            writer1.close();
-        } catch (IOException e) {
-            System.out.println("Could not write to file: " + e.getMessage());
-        }
+        String filePath = "./data.csv";
 
-        try {
-            BufferedWriter writer2 = new BufferedWriter(new FileWriter("src/ZooHomework/animals.csv"));
-            writer2.write("animal, name, species, breed, age, weight\n");
-            List<String> animalsFileLoadArray = new ArrayList<>();
-            animalsFileLoadArray.add("Elephant, Dumbo, Pachyderm, Orejon, 10, 1000");
-            animalsFileLoadArray.add("Elephant, Unicorn, Pachyderm, Orejon, 15, 1250");
-            animalsFileLoadArray.add("Elephant, Mario, Pachyderm, Patudo, 7, 950");
-            animalsFileLoadArray.add("Elephant, Miggy, Pachyderm, Orejon, 36, 2000");
-            animalsFileLoadArray.add("Elephant, Felipe, Pachyderm, Orejon, 14, 1800");
-            animalsFileLoadArray.add("Elephant, Felipe, Pachyderm, Orejon, 14, 1800");
-            animalsFileLoadArray.add("Lion, Nala, Feline, cat, 6, 65");
-            animalsFileLoadArray.add("Lion, Simba, Feline, brown mane, 5, 65");
+        Zoo zoo = new Zoo("Botanic");
+        ZooAreas zooArea = new ZooAreas("Mammals",4);
 
-            for (String animal : animalsFileLoadArray) {
-                writer2.write(animal + "\n");
-            }
-            writer2.close();
-        } catch (IOException e) {
-            System.out.println("Could not write to file: " + e.getMessage());
-        }
-
-        ArrayList<ZooAreas> zooAreasFileReadArray = new ArrayList<>();
-        try {
-            BufferedReader reader1 = new BufferedReader(new FileReader("src/ZooHomework/zooAreas.csv"));
-            reader1.readLine();
-            String[] areas;
-            String line = reader1.readLine();
-            int i = 0;
-            while (line != null) {
-                areas = line.split(", ");
-                zooAreasFileReadArray.add(i, new ZooAreas(areas[0], Integer.parseInt(areas[1])));
-                i++;
-                line = reader1.readLine();
-            }
-            reader1.close();
-        } catch (IOException e) {
-            System.out.println("Could not access file: " + e.getMessage());
-        }
-
-        ArrayList<Animal> animalsFileReadArray = new ArrayList<>();
-        try {
-            BufferedReader reader2 = new BufferedReader(new FileReader("src/ZooHomework/animals.csv"));
-            reader2.readLine();
-            String[] animals;
-            String line = reader2.readLine();
-            int i = 0;
-
-            while (line != null) {
-                animals = line.split(", ");
-                if (animals[0].equals("Elephant")) {
-                    animalsFileReadArray.add(i, new Elephant(animals[1],
-                                                             animals[2],
-                                                             animals[3],
-                                                             Integer.parseInt(animals[4]),
-                                                             Integer.parseInt(animals[5])));
-                } else if (animals[0].equals("Lion")) {
-                    animalsFileReadArray.add(i, new Lion(animals[1],
-                                                         animals[2],
-                                                         animals[3],
-                                                         Integer.parseInt(animals[4]),
-                                                         Integer.parseInt(animals[5])));
-                }
-                i++;
-                line = reader2.readLine();
-            }
-            reader2.close();
-        } catch (IOException e) {
-            System.out.println("Could not access file: " + e.getMessage());
-        }
-
-        ZooAreas zooArea1 = zooAreasFileReadArray.get(0);
-        ZooAreas zooArea2 = zooAreasFileReadArray.get(1);
-        ZooAreas zooArea3 = zooAreasFileReadArray.get(2);
-
-        for (Animal animal: animalsFileReadArray) {
-            String animalType = animal.getClass().getSimpleName();
-            if (animalType.equals("Elephant")) {
-                zooArea1.addAnimal(animal);
-            } else if (animalType.equals("Lion")) {
-                zooArea3.addAnimal(animal);
-            } else {
-                zooArea2.addAnimal(animal);
-            }
-        }
-
-        zoo1.addArea(zooArea1);
-        zoo1.addArea(zooArea3);
-
-        int filterCapacity = 2;
-        ArrayList<ZooAreas> filteredAreas = new ArrayList<>(){{
-            addAll(zoo1.areas.stream().filter(zooArea -> zooArea.getCurrentCapacity() >= filterCapacity).toList());
+        ArrayList<Animal> mammals = new ArrayList<>(){{
+            add(new Elephant("Nala","????","Orejon",25,1250));
+            add(new Elephant("Dambo","????","Orejon",26,1000));
         }};
+        //Add to Animal to the Area
+        zooArea.addAnimal(mammals);
+        //Add Zoo Area to the Zoo
+        zoo.addArea(zooArea);
 
-        filteredAreas.forEach(zooAreas -> zooAreas.getAnimals()
-                                      .forEach(animal -> System.out.println("Name: "+animal.getName()+
-                                                                            "\nSpecie: "+animal.getSpecies()+
-                                                                            "\nBreed: "+animal.getBreed()+
-                                                                            "\nAge: "+animal.getAge()+
-                                                                            "\nWeight: "+animal.getWeight()+"\n")));
+        //Write file to csv
+        writeFile(filePath , formatZooData(zoo));
+        //Read file to a collection of String[]
+        readFile(filePath);
+        //TODO
+        // 1. Further refactoring, especially the statics methods below
+        // 2. Try to map readFile() collection output back to the corresponding class:
+        //    2.1 In case there's numerous zoos in the list, generate a collection of zoos
+        // 3. Noah's code: test the capacity constraint of the ZooAreas class
+    }
 
+    public static void writeFile(String path, StringBuilder file){
+        try{
+            Path filePath = Paths.get(path);
+            Scanner scanner = new Scanner(System.in);
+
+            if(Files.exists(filePath)){
+                System.out.println("File already exists, would you like to overwrite? (Y/N)");
+                String option = scanner.nextLine().toUpperCase();
+
+                if(option.equals("N")){
+                    System.out.println("File will not be overwritten, closing the program.....");
+                    System.exit(0);
+                }else if(option.equals("Y")){
+                    System.out.println("Overwriting existing file...");
+                    Files.deleteIfExists(filePath);
+                }
+            }
+
+            Files.createFile(filePath);
+
+            Files.write(filePath, file.toString().getBytes(), StandardOpenOption.APPEND);
+
+        }catch (IOException e){
+            System.out.println("Could not write to file: " + e.getMessage());
+        }
+    }
+
+    public static List<String[]> readFile(String path){
+        try{
+            Path filePath = Paths.get(path);
+            List<String[]> lines = new ArrayList<>();
+
+            if(Files.notExists(filePath)){
+                throw new FileNotFoundException("File not found: " + path);
+            }
+
+            BufferedReader rd = Files.newBufferedReader(filePath);
+
+            //Skip headers
+            rd.readLine();
+
+            String line;
+            //Read till the end :D
+            while((line = rd.readLine()) != null){
+                String[] data = line.split(";");
+                lines.add(data);
+            }
+
+            return lines;
+
+        } catch (Exception e) {
+            System.out.println("Could not read file: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public static StringBuilder formatZooData(Zoo zoo) {
+        StringBuilder sb = new StringBuilder();
+
+        // Headers
+        sb.append("Zoo;Area;Name;Species;Breed;Age;Weight\n");
+
+        // Data body
+        zoo.getAreas().forEach(zooArea -> zooArea.getAnimals()
+                .forEach(animal ->
+                    sb.append(String.format("%s;%s;%s;%s;%s;%d;%d%n",
+                            zoo.name,
+                            zooArea.name,
+                            animal.getName(),
+                            animal.getSpecies(),
+                            animal.getBreed(),
+                            animal.getAge(),
+                            animal.getWeight()))
+        ));
+
+        return sb;
     }
 }

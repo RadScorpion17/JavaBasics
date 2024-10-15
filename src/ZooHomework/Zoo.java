@@ -13,4 +13,6 @@ public class Zoo {
     public void addArea(ZooAreas area){
         areas.add(area);
     }
+
+    public HashSet<ZooAreas> getAreas(){ return areas; }
 }
