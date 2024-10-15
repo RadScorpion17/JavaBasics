@@ -28,3 +28,5 @@ bin/
 ### Mac OS ###
 .DS_Store
 JavaBasics.iml
+/src/ZooHomework/animals.csv
+/src/ZooHomework/zooAreas.csv
