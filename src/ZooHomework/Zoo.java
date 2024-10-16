@@ -1,6 +1,7 @@
 package ZooHomework;
 
 import java.util.HashSet;
+import java.util.List;
 
 public class Zoo {
     public String name;

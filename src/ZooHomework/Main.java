@@ -15,69 +15,57 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
         String filePath = "./data.csv";
 
+        //region Initialize objects and write'em to a csv file
         Zoo zoo = new Zoo("Botanic");
         ZooAreas zooArea = new ZooAreas("Mammals",4);
-
         ArrayList<Animal> mammals = new ArrayList<>(){{
             add(new Elephant("Nala","????","Orejon",25,1250));
             add(new Elephant("Dambo","????","Orejon",26,1000));
         }};
-        //Add to Animal to the Area
+        //Add Animal to the Area
         zooArea.addAnimal(mammals);
-        //Add Zoo Area to the Zoo
+        //Add ZooArea to the Zoo
         zoo.addArea(zooArea);
-
         //Write file to csv
         writeFile(filePath , formatZooData(zoo));
-        //Read file to a collection of String[]
-        readFile(filePath);
+        //endregion
+
+        //region Read csv file and print data
         //TODO
         // 1. Further refactoring, especially the statics methods below
-        // 2. Try to map readFile() collection output back to the corresponding class:
-        //    2.1 In case there's numerous zoos in the list, generate a collection of zoos
-        // 3. Noah's code: test the capacity constraint of the ZooAreas class
+        // 2. Noah's code: test the capacity constraint of the ZooAreas class, also, filter data with stream()
+        // Nvm trying to map to the class
+        List<Map<String,String>> csvData = mapCSV(filePath);
+        csvData.forEach(System.out::println);
+        //endregion
     }
 
-    public static void writeFile(String path, StringBuilder file){
-        try{
+    public static void writeFile(String path, StringBuilder file) {
+        try {
             Path filePath = Paths.get(path);
-            Scanner scanner = new Scanner(System.in);
-
-            if(Files.exists(filePath)){
-                System.out.println("File already exists, would you like to overwrite? (Y/N)");
-                String option = scanner.nextLine().toUpperCase();
-
-                if(option.equals("N")){
-                    System.out.println("File will not be overwritten, closing the program.....");
-                    System.exit(0);
-                }else if(option.equals("Y")){
-                    System.out.println("Overwriting existing file...");
-                    Files.deleteIfExists(filePath);
-                }
+            if (Files.exists(filePath)) {
+                System.out.println("File already exists, overwriting...");
+            } else {
+                Files.createFile(filePath);
             }
-
-            Files.createFile(filePath);
-
-            Files.write(filePath, file.toString().getBytes(), StandardOpenOption.APPEND);
-
-        }catch (IOException e){
+            Files.write(filePath, file.toString().getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
             System.out.println("Could not write to file: " + e.getMessage());
         }
     }
 
-    public static List<String[]> readFile(String path){
+    //TODO: this method length can be reduced with stream
+    public static List<Map<String,String>> mapCSV(String path){
         try{
             Path filePath = Paths.get(path);
-            List<String[]> lines = new ArrayList<>();
+            List<Map<String, String>> dataSet = new ArrayList<>();
+            List<String> headers = new ArrayList<>();
 
             if(Files.notExists(filePath)){
                 throw new FileNotFoundException("File not found: " + path);
@@ -85,17 +73,30 @@ public class Main {
 
             BufferedReader rd = Files.newBufferedReader(filePath);
 
-            //Skip headers
-            rd.readLine();
-
-            String line;
-            //Read till the end :D
-            while((line = rd.readLine()) != null){
-                String[] data = line.split(";");
-                lines.add(data);
+            //Extract headers from csv
+            for(String header: rd.readLine().split(";")){
+                headers.add(header);
             }
 
-            return lines;
+            //Variable to contain og csv line
+            String line;
+            while((line = rd.readLine()) != null){
+
+                Map<String,String> lines = new HashMap<>();
+                String[] data = line.split(";");
+                int pos = 0;
+
+                //For each header, map data from csv body (every item must be in order)
+                for(String header : headers){
+                    lines.put(header, data[pos]);
+                    pos++;
+                }
+
+                //Add mapped line to the dataSet
+                dataSet.add(lines);
+            }
+
+            return dataSet;
 
         } catch (Exception e) {
             System.out.println("Could not read file: " + e.getMessage());
