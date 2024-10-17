@@ -15,6 +15,10 @@ public class Elephant implements Animal {
         this.weight = weight;
     }
 
+    public Elephant(){
+
+    }
+
     @Override
     public void eat() {
         System.out.println("Elephant " + name + " eats");

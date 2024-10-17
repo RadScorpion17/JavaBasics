@@ -27,6 +27,8 @@ public class Main {
         ArrayList<Animal> mammals = new ArrayList<>(){{
             add(new Elephant("Nala","????","Orejon",25,1250));
             add(new Elephant("Dambo","????","Orejon",26,1000));
+            add(new Elephant("Dambo","????","Orejon",26,1000));
+            add(new Lion("Simba","????","Big",26,100));
         }};
         //Add Animal to the Area
         zooArea.addAnimal(mammals);
@@ -43,7 +45,8 @@ public class Main {
         // Nvm trying to map to the class
         List<Map<String,String>> csvData = mapCSV(filePath);
         csvData.forEach(System.out::println);
-        //endregion
+
+        List<Object> objects = Mapper.dynamicInstance(csvData);
     }
 
     public static void writeFile(String path, StringBuilder file) {
@@ -108,14 +111,15 @@ public class Main {
         StringBuilder sb = new StringBuilder();
 
         // Headers
-        sb.append("Zoo;Area;Name;Species;Breed;Age;Weight\n");
+        sb.append("Zoo;Area;Animal;Name;Species;Breed;Age;Weight\n");
 
         // Data body
         zoo.getAreas().forEach(zooArea -> zooArea.getAnimals()
                 .forEach(animal ->
-                    sb.append(String.format("%s;%s;%s;%s;%s;%d;%d%n",
+                    sb.append(String.format("%s;%s;%s;%s;%s;%s;%d;%d%n",
                             zoo.name,
                             zooArea.name,
+                            animal.getClass().getSimpleName(),
                             animal.getName(),
                             animal.getSpecies(),
                             animal.getBreed(),
